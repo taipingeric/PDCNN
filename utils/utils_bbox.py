@@ -20,8 +20,8 @@ class BBoxUtility(object):
 
         self._min_k        = min_k
 
-        self.boxes  = tf.placeholder(dtype='float32', shape=(None, 4))
-        self.scores = tf.placeholder(dtype='float32', shape=(None,))
+        self.boxes  = tf.compat.v1.placeholder(dtype='float32', shape=(None, 4))
+        self.scores = tf.compat.v1.placeholder(dtype='float32', shape=(None,))
         
         self.nms_out_rpn        = tf.image.non_max_suppression(self.boxes, self.scores, min_k, iou_threshold=rpn_nms)
         self.nms_out_classifer  = tf.image.non_max_suppression(self.boxes, self.scores, min_k, iou_threshold=nms_iou)

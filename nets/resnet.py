@@ -1,5 +1,5 @@
 from keras import backend as K
-from keras.engine import Layer
+from keras.layers import Layer
 from keras.initializers import random_normal
 from keras.layers import Activation, BatchNormalization, Conv2D
 import keras
@@ -198,7 +198,8 @@ class Conv2dUnit(object):
         if act == 'relu':
             self.act = keras.layers.ReLU()
         elif act == 'leaky':
-            self.act = keras.layers.advanced_activations.LeakyReLU(alpha=0.1)
+            # self.act = keras.layers.advanced_activations.LeakyReLU(alpha=0.1)
+            self.act = keras.layers.LeakyReLU(alpha=0.1)
 
         elif act == 'mish':
             self.act = Mish()

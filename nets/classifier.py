@@ -1,6 +1,7 @@
 import keras.backend as K
 import tensorflow as tf
-from keras.engine.topology import Layer
+# from keras.engine.topology import Layer
+from keras.layers import Layer
 from keras.initializers import random_normal
 
 from keras.layers import (Dense, Flatten, Activation, BatchNormalization, Conv2D,
@@ -24,8 +25,8 @@ class RoiPoolingConv(Layer):
         assert(len(x) == 2)
         feature_map = x[0]
         rois        = x[1]
-        num_rois    = tf.shape(rois)[1]
-        batch_size  = tf.shape(rois)[0]
+        num_rois    = tf.shape(input=rois)[1]
+        batch_size  = tf.shape(input=rois)[0]
         box_index   = tf.expand_dims(tf.range(0, batch_size), 1)
         box_index   = tf.tile(box_index, (1, num_rois))
         box_index   = tf.reshape(box_index, [-1])

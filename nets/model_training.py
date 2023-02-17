@@ -23,35 +23,35 @@ def focal_loss(hm_pred, hm_true):
     neg_mask = tf.cast(tf.less(hm_true, 1), tf.float32)
     neg_weights = tf.pow(1 - hm_true, 4)
 
-    pos_loss = -tf.log(tf.clip_by_value(hm_pred, 1e-6, 1.)) * tf.pow(1 - hm_pred, 2) * pos_mask
-    neg_loss = -tf.log(tf.clip_by_value(1 - hm_pred, 1e-6, 1.)) * tf.pow(hm_pred, 2) * neg_weights * neg_mask
+    pos_loss = -tf.math.log(tf.clip_by_value(hm_pred, 1e-6, 1.)) * tf.pow(1 - hm_pred, 2) * pos_mask
+    neg_loss = -tf.math.log(tf.clip_by_value(1 - hm_pred, 1e-6, 1.)) * tf.pow(hm_pred, 2) * neg_weights * neg_mask
 
-    num_pos = tf.reduce_sum(pos_mask)
-    pos_loss = tf.reduce_sum(pos_loss)
-    neg_loss = tf.reduce_sum(neg_loss)
-    cls_loss = tf.cond(tf.greater(num_pos, 0), lambda: (pos_loss + neg_loss) / num_pos, lambda: neg_loss)
+    num_pos = tf.reduce_sum(input_tensor=pos_mask)
+    pos_loss = tf.reduce_sum(input_tensor=pos_loss)
+    neg_loss = tf.reduce_sum(input_tensor=neg_loss)
+    cls_loss = tf.cond(pred=tf.greater(num_pos, 0), true_fn=lambda: (pos_loss + neg_loss) / num_pos, false_fn=lambda: neg_loss)
     return cls_loss
 
 
 def reg_l1_loss(y_pred, y_true, indices, mask):
-    b, c = tf.shape(y_pred)[0], tf.shape(y_pred)[-1]
-    k = tf.shape(indices)[1]
+    b, c = tf.shape(input=y_pred)[0], tf.shape(input=y_pred)[-1]
+    k = tf.shape(input=indices)[1]
 
     y_pred = tf.reshape(y_pred, (b, -1, c))
-    length = tf.shape(y_pred)[1]
+    length = tf.shape(input=y_pred)[1]
     indices = tf.cast(indices, tf.int32)
 
     batch_idx = tf.expand_dims(tf.range(0, b), 1)
     batch_idx = tf.tile(batch_idx, (1, k))
-    full_indices = (tf.reshape(batch_idx, [-1]) * tf.to_int32(length) +
+    full_indices = (tf.reshape(batch_idx, [-1]) * tf.cast(length, tf.int32) +
                     tf.reshape(indices, [-1]))
 
     y_pred = tf.gather(tf.reshape(y_pred, [-1, c]), full_indices)
     y_pred = tf.reshape(y_pred, [b, -1, c])
 
     mask = tf.tile(tf.expand_dims(mask, axis=-1), (1, 1, 2))
-    total_loss = tf.reduce_sum(tf.abs(y_true * mask - y_pred * mask))
-    reg_loss = total_loss / (tf.reduce_sum(mask) + 1e-4)
+    total_loss = tf.reduce_sum(input_tensor=tf.abs(y_true * mask - y_pred * mask))
+    reg_loss = total_loss / (tf.reduce_sum(input_tensor=mask) + 1e-4)
     return reg_loss
 
 def classifier_cls_loss(y_true, y_pred):
@@ -59,7 +59,7 @@ def classifier_cls_loss(y_true, y_pred):
     class_weights = tf.constant([[[0.36, 0.39, 0.85, 2.4, 1]]])
 
     mul = class_weights * y_true
-    weights = tf.reduce_sum(mul, axis=-1)
+    weights = tf.reduce_sum(input_tensor=mul, axis=-1)
     weighted_losses = unweighted_losses * weights
     return K.mean(weighted_losses)
 
@@ -70,7 +70,7 @@ def class_loss_regr_fixed_num(y_true, y_pred, num_classes = 4, sigma_squared=1,e
     regression_diff = regression_target - regression
     regression_diff = keras.backend.abs(regression_diff)
 
-    regression_loss = 4 * K.sum(y_true[:, :, :4 * num_classes] * tf.where(
+    regression_loss = 4 * K.sum(y_true[:, :, :4 * num_classes] * tf.compat.v1.where(
         keras.backend.less(regression_diff, 1.0 / sigma_squared),
         0.5 * sigma_squared * keras.backend.pow(regression_diff, 2),
         regression_diff - 0.5 / sigma_squared

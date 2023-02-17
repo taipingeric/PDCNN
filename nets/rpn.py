@@ -29,13 +29,13 @@ def outhead(x):
 
 def nms(heat, kernelh=14, kernelw = 3):
     hmax = MaxPooling2D((kernelh, kernelw), strides=1, padding='SAME')(heat)
-    heat = tf.where(tf.equal(hmax, heat), heat, tf.zeros_like(heat))
+    heat = tf.compat.v1.where(tf.equal(hmax, heat), heat, tf.zeros_like(heat))
     return heat
 
 
 def topk(hm, max_objects=100):
     hm = nms(hm)
-    b, h, w, c = tf.shape(hm)[0], tf.shape(hm)[1], tf.shape(hm)[2], tf.shape(hm)[3]
+    b, h, w, c = tf.shape(input=hm)[0], tf.shape(input=hm)[1], tf.shape(input=hm)[2], tf.shape(input=hm)[3]
     hm = tf.reshape(hm, (b, -1))
     scores, indices = tf.math.top_k(hm, k=max_objects, sorted=True)
     class_ids = indices % c
@@ -48,13 +48,14 @@ def topk(hm, max_objects=100):
 def decode(hm, wh, reg, max_objects=36):
 
     scores, indices, class_ids, xs, ys = topk(hm, max_objects=max_objects)
-    b = tf.shape(hm)[0]
+    b = tf.shape(input=hm)[0]
     reg = tf.reshape(reg, [b, -1, 2])
     wh = tf.reshape(wh, [b, -1, 2])
-    length = tf.shape(wh)[1]
+    length = tf.shape(input=wh)[1]
     batch_idx = tf.expand_dims(tf.range(0, b), 1)
     batch_idx = tf.tile(batch_idx, (1, max_objects))
-    full_indices = tf.reshape(batch_idx, [-1]) * tf.to_int32(length) + tf.reshape(indices, [-1])
+    full_indices = tf.reshape(batch_idx, [-1]) * tf.cast(length, tf.int32) + tf.reshape(indices, [-1])
+    # full_indices = tf.reshape(batch_idx, [-1]) * tf.to_int32(length) + tf.reshape(indices, [-1])
     topk_reg = tf.gather(tf.reshape(reg, [-1, 2]), full_indices)
     topk_reg = tf.reshape(topk_reg, [b, -1, 2])
     topk_wh = tf.gather(tf.reshape(wh, [-1, 2]), full_indices)

@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from keras.applications.imagenet_utils import preprocess_input
 from PIL import Image
+import os
 
 from utils.utils import cvtColor
 
@@ -107,8 +108,9 @@ class FRCNNDatasets():
         line = annotation_line.split()
 
 
-
-        image   = Image.open(line[0])
+        path = line[0]
+        path = os.path.join("../images", path)
+        image   = Image.open(path)
         image   = cvtColor(image)
 
 
