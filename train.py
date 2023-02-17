@@ -16,7 +16,8 @@ from utils.utils_fit import fit_one_epoch
 if __name__ == "__main__":
     #para
     classes_path    = 'model_data/classes.txt'
-    model_path      = 'model_data/model.h5'
+    # model_path      = 'model_data/model.h5'
+    model_path = ""
     input_shape     = [512, 512]
 
     batch_size = 2
