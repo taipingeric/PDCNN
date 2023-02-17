@@ -109,7 +109,7 @@ class FRCNNDatasets():
 
 
         path = line[0]
-        path = os.path.join("../images", path)
+        path = os.path.join("/home/u2186644/Tooth periodontitis bone loss/Dataset/Images", path)
         image   = Image.open(path)
         image   = cvtColor(image)
 

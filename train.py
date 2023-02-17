@@ -1,7 +1,10 @@
 
-import keras.backend as K
+# +
+# from tensorflow.keras import backend as K
+# -
 
-from keras.optimizers import Adam
+# from keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam
 
 from nets.model import get_model
 from nets.model_training import ProposalTargetCreator
@@ -71,8 +74,8 @@ if __name__ == "__main__":
             lr = 5e-5
         elif epoch > 15:
             lr = 5e-4
-        K.set_value(model_rpn.optimizer.lr, lr)
-        K.set_value(model_all.optimizer.lr, lr)
+#         K.set_value(model_rpn.optimizer.lr, lr)
+#         K.set_value(model_all.optimizer.lr, lr)
 
         model_all.save_weights('ep%03d.h5' % (epoch + 1))
 
